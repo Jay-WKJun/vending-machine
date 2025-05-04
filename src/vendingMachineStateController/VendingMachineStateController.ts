@@ -1,8 +1,9 @@
 import { setup, assign } from "xstate";
+import type { Product } from "../types/product";
 
 type VendingMachineContext = {
   inputNumber: number | null;
-  selectedProductInfo: { name: string; price: number } | null;
+  selectedProductInfo: Product | null;
   errorMessage: string | null;
 };
 
@@ -28,7 +29,7 @@ export const vendingMachineStateController = setup({
   types: {
     context: {} as VendingMachineContext,
     events: {} as VendingMachineEvent,
-    actions: {} as {},
+    actions: { setProductInfo: () => {} },
   },
 }).createMachine({
   id: "vendingMachine",
@@ -40,14 +41,13 @@ export const vendingMachineStateController = setup({
       entry: assign(INITIAL_CONTEXT),
       on: {
         INPUT_NUMBER: {
-          actions: assign(({ context, event }) => {
-            const currentNumber = context.inputNumber ?? 0;
-            const newInputNumber = (currentNumber * 10 + event.digit) % 100;
-            return {
-              ...context,
-              inputNumber: newInputNumber,
-            };
-          }),
+          actions: [
+            assign(({ event }) => {
+              const newInputNumber = event.digit;
+              return { inputNumber: newInputNumber };
+            }),
+            { type: "setProductInfo" },
+          ],
         },
         INIT_INPUT_NUMBER: {
           actions: assign(({ context }) => {

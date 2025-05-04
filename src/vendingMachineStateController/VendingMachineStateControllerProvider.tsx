@@ -1,6 +1,10 @@
+import { assign } from "xstate";
 import { createContext, useContext } from "react";
 import { useMachine } from "@xstate/react";
 import { vendingMachineStateController } from "./VendingMachineStateController";
+import { ProductShelfController } from "../services/ProductShelfController";
+
+const productShelfController = new ProductShelfController();
 
 const VendingMachineStateContext = createContext<ReturnType<
   typeof useMachine<typeof vendingMachineStateController>
@@ -11,7 +15,18 @@ export const VendingMachineStateProvider = ({
 }: {
   children: React.ReactNode;
 }) => {
-  const machine = useMachine(vendingMachineStateController);
+  const machine = useMachine(
+    vendingMachineStateController.provide({
+      actions: {
+        setProductInfo: assign(({ context }) => {
+          const selectedProductInfo = productShelfController.getProductInfo(
+            context.inputNumber
+          );
+          return { selectedProductInfo };
+        }),
+      },
+    })
+  );
 
   return (
     <VendingMachineStateContext.Provider value={machine}>

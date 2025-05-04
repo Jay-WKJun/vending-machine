@@ -15,7 +15,8 @@ export type CardState =
   | "inPaymentProcess"
   | "paymentSuccess"
   | "paymentFailed"
-  | "error";
+  | "error"
+  | "locked";
 
 interface CardModuleProps {
   className?: string;
@@ -25,6 +26,7 @@ interface CardModuleProps {
 export interface CardModuleRef {
   startPayment: () => Promise<boolean>;
   init: () => void;
+  lock: () => void;
 }
 
 export const CardModule = forwardRef<CardModuleRef, CardModuleProps>(
@@ -76,6 +78,9 @@ export const CardModule = forwardRef<CardModuleRef, CardModuleProps>(
         }
         return isSuccess;
       },
+      lock: () => {
+        setCardState("locked");
+      },
       init: () => {
         setCardState("idle");
         setErrorMessage("");
@@ -90,6 +95,7 @@ export const CardModule = forwardRef<CardModuleRef, CardModuleProps>(
       if (cardState === "inPaymentProcess") return "결제 중...";
       if (cardState === "paymentFailed") return "결제 실패, 다시 시도해주세요";
       if (cardState === "paymentSuccess") return "결제 성공";
+      if (cardState === "locked") return "다른 결제 진행중...";
     }, [cardState, errorMessage]);
 
     return (

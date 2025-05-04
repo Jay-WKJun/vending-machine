@@ -15,6 +15,7 @@ interface CashModuleProps {
 export interface CashModuleRef {
   startPayment: (productPrice: number) => Promise<boolean>;
   init: () => void;
+  lock: () => void;
 }
 
 const EMPTY_CASH = 0;
@@ -26,12 +27,18 @@ export const CashModule = forwardRef<CashModuleRef, CashModuleProps>(
 
     useImperativeHandle(ref, () => ({
       startPayment: async (productPrice: number) => {
+        if (totalCashAmount < productPrice) return false;
+
         setIsInputActive(false);
-        const isSuccess = await getRandomSuccessResult(95);
+
+        const isSuccess = await getRandomSuccessResult(99);
         if (isSuccess) {
           setTotalCashAmount((prev) => prev - productPrice);
         }
         return isSuccess;
+      },
+      lock: () => {
+        setIsInputActive(false);
       },
       init: () => {
         // 잔돈 반환을 가정

@@ -39,20 +39,19 @@ export function PaymentModule({ className }: PaymentModuleProps) {
   const { snapshot, send } = useVendingMachineStateControllerContext();
 
   useEffect(() => {
-    const readyPaymentMethods = paymentMethods.filter(
+    const readyPaymentMethod = paymentMethods.find(
       ({ isPaymentReady }) => isPaymentReady
     );
-    const isPaymentReady = readyPaymentMethods.length > 0;
-    const paymentInitializers = readyPaymentMethods.map(
-      ({ paymentModuleRef }) =>
-        () =>
-          paymentModuleRef.current?.init()
-    );
+    const isPaymentReady = Boolean(readyPaymentMethod);
 
     send({
       type: "SET_PAYMENTS_INFO",
-      isPaymentReady: isPaymentReady,
-      paymentInitializers,
+      isPaymentReady,
+      paymentInitializers: paymentMethods.map(
+        ({ paymentModuleRef }) =>
+          () =>
+            paymentModuleRef.current?.init()
+      ),
     });
 
     // 결제 준비가 됐다면 자동 결제 시도

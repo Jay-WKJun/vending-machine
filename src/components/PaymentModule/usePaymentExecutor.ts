@@ -5,6 +5,7 @@ export type PaymentMethod = {
   isPaymentReady: boolean;
   paymentModuleRef: RefObject<{
     startPayment: (productPrice: number) => Promise<boolean>;
+    lock: () => void;
     init: () => void;
   } | null>;
 };
@@ -18,13 +19,22 @@ export function usePaymentExecutor(paymentMethods: PaymentMethods) {
 
   useEffect(() => {
     const isPayingState = vendingMachineState.match("paying");
-    const paymentMethod = paymentMethods.find(
+    const [readyPaymentMethod, ...otherReadyMethods] = paymentMethods.filter(
       ({ isPaymentReady }) => isPaymentReady
-    )?.paymentModuleRef.current;
+    );
 
-    if (!isPayingState || !selectedProductInfo || !paymentMethod) return;
+    if (!isPayingState || !selectedProductInfo || !readyPaymentMethod) return;
 
     async function startPayment() {
+      // 나머지 결제 방법들 작동 잠금
+      paymentMethods
+        .filter(({ isPaymentReady }) => !isPaymentReady)
+        .concat(otherReadyMethods)
+        .forEach(({ paymentModuleRef }) => {
+          paymentModuleRef.current?.lock();
+        });
+
+      const paymentMethod = readyPaymentMethod.paymentModuleRef.current;
       const res = await paymentMethod!.startPayment(selectedProductInfo!.price);
 
       if (res) send({ type: "PAYMENT_SUCCESS" });

@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState, useCallback, useMemo } from "react";
-import { useVendingMachineStateControllerContext } from "../../vendingMachineStateController";
+import { useVendingMachineStateControllerContext } from "@/vendingMachineStateController";
 import { usePaymentExecutor } from "./usePaymentExecutor";
 import {
   CashModule,

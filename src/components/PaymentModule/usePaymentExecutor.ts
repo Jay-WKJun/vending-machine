@@ -1,5 +1,5 @@
 import { useEffect, RefObject } from "react";
-import { useVendingMachineStateControllerContext } from "../../vendingMachineStateController";
+import { useVendingMachineStateControllerContext } from "@/vendingMachineStateController";
 import type { PaymentRef } from "./type";
 
 export type Payment = {

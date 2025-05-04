@@ -1,5 +1,5 @@
 import { setup, assign } from "xstate";
-import type { Product } from "../types/product";
+import type { Product } from "@/types/product";
 
 type VendingMachineContext = {
   inputNumber: number | null;

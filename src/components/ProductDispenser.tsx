@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
-import { useVendingMachineStateControllerContext } from "../vendingMachineStateController";
-import { productShelfController } from "../services/ProductShelfController";
-import type { Product } from "../types/product";
+import { useVendingMachineStateControllerContext } from "@/vendingMachineStateController";
+import { productShelfController } from "@/services/ProductShelfController";
+import type { Product } from "@/types/product";
 
 export function ProductDispenser() {
   const [dispensedProduct, setDispensedProduct] = useState<Product | null>(

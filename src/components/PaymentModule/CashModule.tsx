@@ -5,7 +5,7 @@ import {
   forwardRef,
   useImperativeHandle,
 } from "react";
-import { getRandomSuccessResult } from "../../utils/mockUtils";
+import { getRandomSuccessResult } from "@/utils/mockUtils";
 import type { PaymentRef } from "./type";
 
 export const paymentId = "cash";

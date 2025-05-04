@@ -1,5 +1,5 @@
 import { useCallback } from "react";
-import { useVendingMachineStateControllerContext } from "../vendingMachineStateController";
+import { useVendingMachineStateControllerContext } from "@/vendingMachineStateController";
 
 export function ProductNumberInput() {
   const { send } = useVendingMachineStateControllerContext();

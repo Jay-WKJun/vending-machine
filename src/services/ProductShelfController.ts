@@ -1,5 +1,5 @@
-import type { Product } from "../types/product";
-import { wait } from "../utils/mockUtils";
+import type { Product } from "@/types/product";
+import { wait } from "@/utils/mockUtils";
 
 class ProductShelfController {
   private products: Product[] = [

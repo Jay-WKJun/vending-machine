@@ -1,5 +1,6 @@
 import { setup, assign } from "xstate";
 import type { Product } from "@/types/product";
+import { second } from "@/utils/time";
 
 type VendingMachineContext = {
   inputNumber: number | null;
@@ -10,8 +11,8 @@ type VendingMachineContext = {
   paymentInitializers: (() => void)[];
 };
 
-const DEFAULT_ERROR_TIMEOUT = 5000;
-const DEFAULT_DONE_TIMEOUT = 5000;
+const DEFAULT_ERROR_TIMEOUT = second(3);
+const DEFAULT_DONE_TIMEOUT = second(2);
 
 const INITIAL_CONTEXT: VendingMachineContext = {
   inputNumber: null,

@@ -1,59 +1,15 @@
+// 상품을 다루는 Product Controller, 상품 정보와 이용 가능 여부 판단, 상품 출력 담당 (상품을 담당하는 외부 기계와 통신하는 역할)
+// 결제를 다루는 Payment Controller, 결제 가능 여부 판단, 결제 input 담당, 결제 완료 후 결제 수단 초기화 담당 (결제를 담당하는 외부 기계와 통신하는 역할)
+// 자판기 컨트롤링은 여기에서 총체적으로 다룸 = xstate에 이어 자판기 상태 관리
+
+import { VendingMachineStateProvider } from "./vendingMachineStateController";
+import { VendingMachine } from "./VendingMachine";
+
 function App() {
   return (
-    <div className="flex flex-col justify-center items-center gap-8">
-      <h1 className="text-2xl font-bold">자판기</h1>
-
-      <div className="flex gap-8">
-        <div className="flex flex-col justify-center items-center border-2 border-gray-300 rounded-md p-2 min-w-80">
-          <span className="text-lg font-bold">어서오세요!</span>
-        </div>
-
-        <div className="grid grid-cols-3 gap-2 border-2 border-gray-300 rounded-md p-2 min-w-50">
-          <button>1</button>
-          <button>2</button>
-          <button>3</button>
-          <button>4</button>
-          <button>5</button>
-          <button>6</button>
-          <button>7</button>
-          <button>8</button>
-          <button>9</button>
-          <button>취소</button>
-          <button>0</button>
-          <button>선택</button>
-        </div>
-      </div>
-
-      <div className="flex gap-8">
-        <div className="border-2 border-gray-300 rounded-md p-2 min-w-30">
-          <div className="flex items-center gap-2 mb-2">
-            <span className="font-bold text-lg">잔액</span>
-            <span className="text-lg font-bold">0원</span>
-          </div>
-          <div className="grid grid-cols-3 gap-2">
-            <button>+ 100원</button>
-            <button>+ 500원</button>
-            <button>+ 1000원</button>
-            <button>+ 5000원</button>
-            <button>+ 10000원</button>
-          </div>
-        </div>
-
-        <div className="flex flex-col justify-center items-center border-2 border-gray-300 rounded-md p-2 min-w-40 gap-2">
-          <div className="text-lg font-bold">대기중...</div>
-          <button
-            className="bg-blue-500 text-white px-2 py-1 rounded-md font-bold"
-            style={{ padding: "10px" }}
-          >
-            카드 입력
-          </button>
-        </div>
-      </div>
-
-      <div className="flex flex-col justify-center items-center border-2 border-gray-300 rounded-md p-2 min-w-80 min-h-15 text-lg font-bold">
-        상품 나오는 곳
-      </div>
-    </div>
+    <VendingMachineStateProvider>
+      <VendingMachine />
+    </VendingMachineStateProvider>
   );
 }
 

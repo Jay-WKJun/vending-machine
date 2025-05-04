@@ -1,10 +1,18 @@
 import { useEffect, useRef, useState, useCallback, useMemo } from "react";
 import { useVendingMachineStateControllerContext } from "../../vendingMachineStateController";
 import { usePaymentExecutor } from "./usePaymentExecutor";
-import { CashModule, type CashModuleRef } from "./CashModule";
-import { CardModule, type CardModuleRef } from "./CardModule";
+import {
+  CashModule,
+  type CashModuleRef,
+  paymentId as cashPaymentId,
+} from "./CashModule";
+import {
+  CardModule,
+  type CardModuleRef,
+  paymentId as cardPaymentId,
+} from "./CardModule";
 
-type PaymentModule = "cash" | "card";
+type PaymentModule = typeof cashPaymentId | typeof cardPaymentId;
 
 interface PaymentModuleProps {
   className?: string;
@@ -20,7 +28,7 @@ export function PaymentModule({ className }: PaymentModuleProps) {
     card: false,
   });
 
-  const paymentMethods = useMemo(
+  const payments = useMemo(
     () => [
       {
         isPaymentReady: paymentsReadyStateMap.card,
@@ -34,12 +42,12 @@ export function PaymentModule({ className }: PaymentModuleProps) {
     [paymentsReadyStateMap]
   );
 
-  usePaymentExecutor(paymentMethods);
+  usePaymentExecutor(payments);
 
   const { snapshot, send } = useVendingMachineStateControllerContext();
 
   useEffect(() => {
-    const readyPaymentMethod = paymentMethods.find(
+    const readyPaymentMethod = payments.find(
       ({ isPaymentReady }) => isPaymentReady
     );
     const isPaymentReady = Boolean(readyPaymentMethod);
@@ -47,7 +55,7 @@ export function PaymentModule({ className }: PaymentModuleProps) {
     send({
       type: "SET_PAYMENTS_INFO",
       isPaymentReady,
-      paymentInitializers: paymentMethods.map(
+      paymentInitializers: payments.map(
         ({ paymentModuleRef }) =>
           () =>
             paymentModuleRef.current?.init()
@@ -56,7 +64,7 @@ export function PaymentModule({ className }: PaymentModuleProps) {
 
     // 결제 준비가 됐다면 자동 결제 시도
     if (isPaymentReady) send({ type: "PAYMENT_START" });
-  }, [paymentMethods, send]);
+  }, [payments, send]);
 
   const handleCashInput = useCallback(
     (totalCashAmount: number) => {

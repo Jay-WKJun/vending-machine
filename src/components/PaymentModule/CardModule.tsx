@@ -7,6 +7,9 @@ import {
   useImperativeHandle,
 } from "react";
 import { getRandomSuccessResult } from "../../utils/mockUtils";
+import type { PaymentRef } from "./type";
+
+export const paymentId = "card";
 
 export type CardState =
   | "idle"
@@ -23,11 +26,7 @@ interface CardModuleProps {
   onCardReady?: (isCardReady: boolean) => void;
 }
 
-export interface CardModuleRef {
-  startPayment: () => Promise<boolean>;
-  init: () => void;
-  lock: () => void;
-}
+export type CardModuleRef = PaymentRef;
 
 export const CardModule = forwardRef<CardModuleRef, CardModuleProps>(
   ({ className, onCardReady }, ref) => {

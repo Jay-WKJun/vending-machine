@@ -6,17 +6,16 @@ import {
   useImperativeHandle,
 } from "react";
 import { getRandomSuccessResult } from "../../utils/mockUtils";
+import type { PaymentRef } from "./type";
+
+export const paymentId = "cash";
 
 interface CashModuleProps {
   className?: string;
   onCashInput?: (totalCashAmount: number) => void;
 }
 
-export interface CashModuleRef {
-  startPayment: (productPrice: number) => Promise<boolean>;
-  init: () => void;
-  lock: () => void;
-}
+export type CashModuleRef = PaymentRef;
 
 const EMPTY_CASH = 0;
 

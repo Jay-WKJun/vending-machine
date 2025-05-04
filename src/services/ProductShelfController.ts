@@ -1,6 +1,7 @@
 import type { Product } from "../types/product";
+import { wait } from "../utils/mockUtils";
 
-export class ProductShelfController {
+class ProductShelfController {
   private products: Product[] = [
     { id: 1, name: "콜라", price: 1100 },
     { id: 2, name: "물", price: 600 },
@@ -18,8 +19,11 @@ export class ProductShelfController {
     return Boolean(this.getProductInfo(productId));
   }
 
-  // 상품 구매 처리
-  purchase(productId: number): Product | null {
+  // 상품 추출
+  async dispenseProduct(productId: number): Promise<Product | null> {
+    await wait(2000);
     return this.getProductInfo(productId);
   }
 }
+
+export const productShelfController = new ProductShelfController();

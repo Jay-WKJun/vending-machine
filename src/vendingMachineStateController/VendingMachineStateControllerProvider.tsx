@@ -2,9 +2,7 @@ import { assign } from "xstate";
 import { createContext, useContext } from "react";
 import { useMachine } from "@xstate/react";
 import { vendingMachineStateController } from "./VendingMachineStateController";
-import { ProductShelfController } from "../services/ProductShelfController";
-
-const productShelfController = new ProductShelfController();
+import { productShelfController } from "../services/ProductShelfController";
 
 const VendingMachineStateContext = createContext<ReturnType<
   typeof useMachine<typeof vendingMachineStateController>

@@ -1,0 +1,71 @@
+import {
+  useCallback,
+  useEffect,
+  useState,
+  forwardRef,
+  useImperativeHandle,
+} from "react";
+
+interface CashModuleProps {
+  className?: string;
+  onCashInput?: (totalCashAmount: number) => void;
+}
+
+export interface CashModuleRef {
+  startPayment: (productPrice: number) => Promise<boolean>;
+  init: () => void;
+}
+
+const EMPTY_CASH = 0;
+
+export const CashModule = forwardRef<CashModuleRef, CashModuleProps>(
+  ({ className, onCashInput }, ref) => {
+    const [totalCashAmount, setTotalCashAmount] = useState(EMPTY_CASH);
+
+    useImperativeHandle(ref, () => ({
+      startPayment: async (productPrice: number) => {
+        setTotalCashAmount((prev) => prev - productPrice);
+        return true;
+      },
+      init: () => {
+        setTotalCashAmount(EMPTY_CASH);
+      },
+    }));
+
+    useEffect(() => {
+      onCashInput?.(totalCashAmount);
+    }, [totalCashAmount, onCashInput]);
+
+    const handleCashInput = useCallback((amount: number) => {
+      setTotalCashAmount((prev) => prev + amount);
+    }, []);
+
+    const renderCashInputButton = useCallback(
+      (amount: number) => (
+        <button
+          key={`input-cash-${amount}`}
+          onClick={() => handleCashInput(amount)}
+        >
+          + {amount}원
+        </button>
+      ),
+      [handleCashInput]
+    );
+
+    return (
+      <div className={className}>
+        <div className="border-2 border-gray-300 rounded-md p-2 min-w-30">
+          <div className="flex items-center gap-2 mb-2">
+            <span className="font-bold text-lg">현금</span>
+            <span className="text-lg font-bold">{totalCashAmount}원</span>
+          </div>
+          <div className="grid grid-cols-3 gap-2">
+            {[100, 500, 1000, 5000, 10000].map((amount) =>
+              renderCashInputButton(amount)
+            )}
+          </div>
+        </div>
+      </div>
+    );
+  }
+);

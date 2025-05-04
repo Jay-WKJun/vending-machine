@@ -15,7 +15,6 @@ export function usePaymentExecutor(paymentMethods: PaymentMethods) {
   const { snapshot, send } = useVendingMachineStateControllerContext();
   const vendingMachineState = snapshot.value;
   const selectedProductInfo = snapshot.context.selectedProductInfo;
-  const isDone = vendingMachineState.match("done");
 
   useEffect(() => {
     const isPayingState = vendingMachineState.match("paying");
@@ -26,7 +25,7 @@ export function usePaymentExecutor(paymentMethods: PaymentMethods) {
     if (!isPayingState || !selectedProductInfo || !paymentMethod) return;
 
     async function startPayment() {
-      const res = await paymentMethod.startPayment(selectedProductInfo.price);
+      const res = await paymentMethod!.startPayment(selectedProductInfo!.price);
 
       if (res) send({ type: "PAYMENT_SUCCESS" });
       else send({ type: "PAYMENT_FAIL", reason: "결제 실패" });
@@ -34,12 +33,4 @@ export function usePaymentExecutor(paymentMethods: PaymentMethods) {
 
     startPayment();
   }, [paymentMethods, selectedProductInfo, send, vendingMachineState]);
-
-  useEffect(() => {
-    if (!isDone) return;
-
-    paymentMethods.forEach((paymentMethod) => {
-      paymentMethod.paymentModuleRef.current?.init();
-    });
-  }, [isDone, paymentMethods]);
 }

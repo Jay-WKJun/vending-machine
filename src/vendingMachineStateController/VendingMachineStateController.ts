@@ -7,9 +7,11 @@ type VendingMachineContext = {
   errorMessage: string | null;
   errorTimeout: number;
   isPaymentReady: boolean;
+  paymentInitializers: (() => void)[];
 };
 
 const DEFAULT_ERROR_TIMEOUT = 5000;
+const DEFAULT_DONE_TIMEOUT = 5000;
 
 const INITIAL_CONTEXT: VendingMachineContext = {
   inputNumber: null,
@@ -17,13 +19,18 @@ const INITIAL_CONTEXT: VendingMachineContext = {
   errorMessage: null,
   errorTimeout: DEFAULT_ERROR_TIMEOUT,
   isPaymentReady: false,
+  paymentInitializers: [],
 };
 
 type VendingMachineEvent =
   | { type: "INPUT_NUMBER"; digit: number }
   | { type: "INIT_INPUT_NUMBER" }
   | { type: "PAYMENT_WAIT_TIMEOUT" }
-  | { type: "SET_PAYMENT_READY_STATE"; isPaymentReady: boolean }
+  | {
+      type: "SET_PAYMENTS_INFO";
+      isPaymentReady: boolean;
+      paymentInitializers: (() => void)[];
+    }
   | { type: "PAYMENT_START" }
   | { type: "PAYMENT_SUCCESS" }
   | { type: "PAYMENT_FAIL"; reason: string }
@@ -37,17 +44,21 @@ export const vendingMachineStateController = setup({
   },
   actions: {
     initContext: assign(INITIAL_CONTEXT),
-    setProductInfo: () => {},
+    executePaymentInitializers: ({ context }) => {
+      context.paymentInitializers.forEach((initializer) => initializer());
+    },
     setError: assign(
       (_, params?: { errorMessage?: string; errorTimeout?: number }) => ({
         errorMessage: params?.errorMessage ?? "",
         errorTimeout: params?.errorTimeout ?? DEFAULT_ERROR_TIMEOUT,
       })
     ),
+    // 외부 주입
+    setProductInfo: () => {},
   },
   delays: {
     errorTimeout: ({ context }) => context.errorTimeout,
-    doneTimeout: () => 5000,
+    doneTimeout: () => DEFAULT_DONE_TIMEOUT,
   },
 }).createMachine({
   id: "vendingMachine",
@@ -56,7 +67,7 @@ export const vendingMachineStateController = setup({
   states: {
     // idle (통상) -> 상품 선택이 가능한 상태 (상품 이용 가능 판단은 ProductController에서 함)
     idle: {
-      entry: assign(INITIAL_CONTEXT),
+      entry: [{ type: "initContext" }],
       on: {
         INPUT_NUMBER: {
           actions: [
@@ -73,9 +84,10 @@ export const vendingMachineStateController = setup({
             selectedProductInfo: null,
           })),
         },
-        SET_PAYMENT_READY_STATE: {
+        SET_PAYMENTS_INFO: {
           actions: assign(({ event }) => ({
             isPaymentReady: event.isPaymentReady,
+            paymentInitializers: event.paymentInitializers,
           })),
         },
         PAYMENT_START: {
@@ -93,9 +105,10 @@ export const vendingMachineStateController = setup({
         },
         PAYMENT_FAIL: {
           target: "error",
-          actions: assign(({ event }) => ({
-            errorMessage: event.reason,
-          })),
+          actions: {
+            type: "setError",
+            params: ({ event }) => ({ errorMessage: event.reason }),
+          },
         },
       },
     },
@@ -107,9 +120,10 @@ export const vendingMachineStateController = setup({
         },
         DISPENSE_FAIL: {
           target: "error",
-          actions: assign(({ event }) => ({
-            errorMessage: event.reason,
-          })),
+          actions: {
+            type: "setError",
+            params: ({ event }) => ({ errorMessage: event.reason }),
+          },
         },
       },
     },
@@ -124,7 +138,10 @@ export const vendingMachineStateController = setup({
     done: {
       after: {
         doneTimeout: {
-          actions: [{ type: "initContext" }],
+          actions: [
+            { type: "executePaymentInitializers" },
+            { type: "initContext" },
+          ],
           target: "idle",
         },
       },

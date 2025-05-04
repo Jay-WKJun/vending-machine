@@ -20,37 +20,44 @@ export function PaymentModule({ className }: PaymentModuleProps) {
     card: false,
   });
 
-  const { snapshot, send } = useVendingMachineStateControllerContext();
-
-  usePaymentExecutor(
-    useMemo(
-      () => [
-        {
-          isPaymentReady: paymentsReadyStateMap.card,
-          paymentModuleRef: cardModuleRef,
-        },
-        {
-          isPaymentReady: paymentsReadyStateMap.cash,
-          paymentModuleRef: cashModuleRef,
-        },
-      ],
-      [paymentsReadyStateMap]
-    )
+  const paymentMethods = useMemo(
+    () => [
+      {
+        isPaymentReady: paymentsReadyStateMap.card,
+        paymentModuleRef: cardModuleRef,
+      },
+      {
+        isPaymentReady: paymentsReadyStateMap.cash,
+        paymentModuleRef: cashModuleRef,
+      },
+    ],
+    [paymentsReadyStateMap]
   );
 
+  usePaymentExecutor(paymentMethods);
+
+  const { snapshot, send } = useVendingMachineStateControllerContext();
+
   useEffect(() => {
-    const isSomePaymentReady = Object.values(paymentsReadyStateMap).some(
-      (isReady) => isReady
+    const readyPaymentMethods = paymentMethods.filter(
+      ({ isPaymentReady }) => isPaymentReady
+    );
+    const isPaymentReady = readyPaymentMethods.length > 0;
+    const paymentInitializers = readyPaymentMethods.map(
+      ({ paymentModuleRef }) =>
+        () =>
+          paymentModuleRef.current?.init()
     );
 
     send({
-      type: "SET_PAYMENT_READY_STATE",
-      isPaymentReady: isSomePaymentReady,
+      type: "SET_PAYMENTS_INFO",
+      isPaymentReady: isPaymentReady,
+      paymentInitializers,
     });
 
     // 결제 준비가 됐다면 자동 결제 시도
-    if (isSomePaymentReady) send({ type: "PAYMENT_START" });
-  }, [send, paymentsReadyStateMap]);
+    if (isPaymentReady) send({ type: "PAYMENT_START" });
+  }, [paymentMethods, send]);
 
   const handleCashInput = useCallback(
     (totalCashAmount: number) => {

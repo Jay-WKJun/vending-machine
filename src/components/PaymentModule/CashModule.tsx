@@ -21,10 +21,12 @@ const EMPTY_CASH = 0;
 
 export const CashModule = forwardRef<CashModuleRef, CashModuleProps>(
   ({ className, onCashInput }, ref) => {
+    const [isInputActive, setIsInputActive] = useState(true);
     const [totalCashAmount, setTotalCashAmount] = useState(EMPTY_CASH);
 
     useImperativeHandle(ref, () => ({
       startPayment: async (productPrice: number) => {
+        setIsInputActive(false);
         const isSuccess = await getRandomSuccessResult(95);
         if (isSuccess) {
           setTotalCashAmount((prev) => prev - productPrice);
@@ -32,7 +34,9 @@ export const CashModule = forwardRef<CashModuleRef, CashModuleProps>(
         return isSuccess;
       },
       init: () => {
+        // 잔돈 반환을 가정
         setTotalCashAmount(EMPTY_CASH);
+        setIsInputActive(true);
       },
     }));
 
@@ -40,9 +44,13 @@ export const CashModule = forwardRef<CashModuleRef, CashModuleProps>(
       onCashInput?.(totalCashAmount);
     }, [totalCashAmount, onCashInput]);
 
-    const handleCashInput = useCallback((amount: number) => {
-      setTotalCashAmount((prev) => prev + amount);
-    }, []);
+    const handleCashInput = useCallback(
+      (amount: number) => {
+        if (!isInputActive) return;
+        setTotalCashAmount((prev) => prev + amount);
+      },
+      [isInputActive]
+    );
 
     const renderCashInputButton = useCallback(
       (amount: number) => (

@@ -5,10 +5,6 @@
   line-height: 1.5;
   font-weight: 400;
 
-  color-scheme: light dark;
-  color: rgba(255, 255, 255, 0.87);
-  background-color: #242424;
-
   font-synthesis: none;
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
@@ -26,4 +22,24 @@ html body {
   display: flex;
   justify-content: center;
   align-items: center;
+}
+
+button {
+  font-weight: bold;
+  cursor: pointer;
+  transition: all 0.2s ease-in-out;
+  border-radius: 10px;
+  padding: 2px;
+}
+
+button:hover {
+  transform: scale(1.05);
+  opacity: 0.8;
+  box-shadow: 0 0 10px 0 rgba(0, 0, 0, 0.1);
+}
+
+button:active {
+  transform: scale(0.95);
+  opacity: 0.6;
+  box-shadow: 0 0 10px 0 rgba(0, 0, 0, 0.1);
 }

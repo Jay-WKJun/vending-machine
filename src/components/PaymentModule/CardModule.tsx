@@ -32,19 +32,18 @@ export const CardModule = forwardRef<CardModuleRef, CardModuleProps>(
     const [cardState, setCardState] = useState<CardState>("idle");
     const [errorMessage, setErrorMessage] = useState("");
 
+    const isCardNotReady =
+      cardState === "idle" ||
+      cardState === "error" ||
+      cardState === "paymentFailed";
+
     useEffect(() => {
-      if (cardState === "ready") {
-        onCardReady?.(true);
-      }
-    }, [onCardReady, cardState]);
+      if (isCardNotReady) onCardReady?.(false);
+      if (cardState === "ready") onCardReady?.(true);
+    }, [onCardReady, cardState, isCardNotReady]);
 
     const handleCardInput = useCallback(async () => {
-      if (
-        cardState !== "idle" &&
-        cardState !== "error" &&
-        cardState !== "paymentFailed"
-      )
-        return;
+      if (!isCardNotReady) return;
 
       setCardState("validateCard");
       setErrorMessage("");
@@ -57,7 +56,7 @@ export const CardModule = forwardRef<CardModuleRef, CardModuleProps>(
         setErrorMessage("카드 입력 실패, 다시 입력해주세요.");
       }
       return isSuccess;
-    }, [cardState]);
+    }, [isCardNotReady]);
 
     useImperativeHandle(ref, () => ({
       startPayment: async () => {
@@ -71,17 +70,9 @@ export const CardModule = forwardRef<CardModuleRef, CardModuleProps>(
         const isSuccess = await getRandomSuccessResult(90, 3000);
         if (isSuccess) {
           setCardState("paymentSuccess");
-          setTimeout(() => {
-            setCardState("idle");
-            setErrorMessage("");
-          }, 2000);
         } else {
           setCardState("paymentFailed");
           setErrorMessage("결제에 실패했습니다. 다시 시도해주세요.");
-          setTimeout(() => {
-            setCardState("ready");
-            setErrorMessage("");
-          }, 2000);
         }
         return isSuccess;
       },

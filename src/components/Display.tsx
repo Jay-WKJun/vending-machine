@@ -3,9 +3,14 @@ import { useVendingMachineStateControllerContext } from "../vendingMachineStateC
 
 export function Display() {
   const { snapshot } = useVendingMachineStateControllerContext();
-  const { inputNumber, selectedProductInfo } = snapshot.context;
+  const vendingMachineState = snapshot.value;
+  const { inputNumber, selectedProductInfo, errorMessage } = snapshot.context;
+
+  const isError = vendingMachineState === "error";
 
   const message = useMemo(() => {
+    if (isError && errorMessage) return errorMessage;
+
     if (inputNumber != null) {
       const productInfo = selectedProductInfo
         ? `${selectedProductInfo?.name}\n${selectedProductInfo?.price}원`
@@ -14,10 +19,15 @@ export function Display() {
       return `입력 번호: ${inputNumber}\n${productInfo}`;
     }
     return "어서오세요!";
-  }, [inputNumber, selectedProductInfo]);
+  }, [inputNumber, selectedProductInfo, errorMessage, isError]);
 
   return (
-    <div className="flex flex-col justify-center items-center border-2 border-gray-300 rounded-md p-2 min-w-80">
+    <div
+      className="flex flex-col justify-center items-center border-2 border-gray-300 rounded-md p-2 min-w-80"
+      style={{
+        backgroundColor: isError ? "rgba(252, 0, 0, 0.6)" : "transparent",
+      }}
+    >
       <span className="text-lg font-bold whitespace-pre-wrap text-center">
         {message}
       </span>

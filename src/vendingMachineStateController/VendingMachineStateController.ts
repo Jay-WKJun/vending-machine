@@ -47,6 +47,7 @@ export const vendingMachineStateController = setup({
   },
   delays: {
     errorTimeout: ({ context }) => context.errorTimeout,
+    doneTimeout: () => 5000,
   },
 }).createMachine({
   id: "vendingMachine",

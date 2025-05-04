@@ -136,7 +136,10 @@ export const vendingMachineStateController = setup({
     error: {
       after: {
         errorTimeout: {
-          actions: [{ type: "initContext" }],
+          actions: [
+            { type: "executePaymentInitializers" },
+            { type: "initContext" },
+          ],
           target: "idle",
         },
       },

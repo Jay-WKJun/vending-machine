@@ -32,10 +32,14 @@ export function usePaymentExecutor(payments: Payments) {
       });
 
       const payment = readyPayment.paymentModuleRef.current;
-      const res = await payment!.startPayment(selectedProductInfo!.price);
+      try {
+        const res = await payment!.startPayment(selectedProductInfo!.price);
 
-      if (res) send({ type: "PAYMENT_SUCCESS" });
-      else send({ type: "PAYMENT_FAIL", reason: "결제 실패" });
+        if (res) send({ type: "PAYMENT_SUCCESS" });
+        else send({ type: "PAYMENT_FAIL", reason: "결제 실패" });
+      } catch {
+        send({ type: "PAYMENT_FAIL", reason: "결제 중 오류가 발생했습니다" });
+      }
     }
 
     startPayment();

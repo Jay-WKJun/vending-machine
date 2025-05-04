@@ -49,14 +49,20 @@ export const CardModule = forwardRef<CardModuleRef, CardModuleProps>(
       setCardState("validateCard");
       setErrorMessage("");
 
-      const isSuccess = await getRandomSuccessResult(90);
-      if (isSuccess) {
-        setCardState("ready");
-      } else {
+      try {
+        const isSuccess = await getRandomSuccessResult(90);
+        if (isSuccess) {
+          setCardState("ready");
+        } else {
+          setCardState("error");
+          setErrorMessage("카드 입력 실패, 다시 입력해주세요.");
+        }
+        return isSuccess;
+      } catch {
         setCardState("error");
-        setErrorMessage("카드 입력 실패, 다시 입력해주세요.");
+        setErrorMessage("카드 입력 중 오류가 발생했습니다.");
+        return false;
       }
-      return isSuccess;
     }, [isCardNotReady]);
 
     useImperativeHandle(ref, () => ({

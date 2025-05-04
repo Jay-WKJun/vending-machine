@@ -30,11 +30,15 @@ export const CashModule = forwardRef<CashModuleRef, CashModuleProps>(
 
         setIsInputActive(false);
 
-        const isSuccess = await getRandomSuccessResult(99);
-        if (isSuccess) {
-          setTotalCashAmount((prev) => prev - productPrice);
+        try {
+          const isSuccess = await getRandomSuccessResult(99);
+          if (isSuccess) {
+            setTotalCashAmount((prev) => prev - productPrice);
+          }
+          return isSuccess;
+        } catch {
+          return false;
         }
-        return isSuccess;
       },
       lock: () => {
         setIsInputActive(false);

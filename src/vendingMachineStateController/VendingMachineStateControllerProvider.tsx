@@ -18,7 +18,7 @@ export const VendingMachineStateProvider = ({
       actions: {
         setProductInfo: assign(({ context }) => {
           const selectedProductInfo = productShelfController.getProductInfo(
-            context.inputNumber
+            context.inputNumber ?? -1
           );
           return { selectedProductInfo };
         }),

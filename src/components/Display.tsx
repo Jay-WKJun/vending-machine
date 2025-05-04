@@ -9,11 +9,14 @@ export function Display() {
   const isError = vendingMachineState === "error";
   const isPaymentProgress = vendingMachineState === "paying";
   const isDone = vendingMachineState === "done";
+  const isPaymentWaitTimeout = vendingMachineState === "timeout";
 
   const message = useMemo(() => {
     if (isError && errorMessage) return errorMessage;
     if (isPaymentProgress) return "결제 중...";
     if (isDone) return "결제 완료!";
+    if (isPaymentWaitTimeout)
+      return "결제 제한시간이 만료됐습니다.\n다시 진행해주세요.";
 
     if (inputNumber != null) {
       const productInfo = selectedProductInfo
@@ -30,6 +33,7 @@ export function Display() {
     errorMessage,
     isPaymentProgress,
     selectedProductInfo,
+    isPaymentWaitTimeout,
   ]);
 
   return (

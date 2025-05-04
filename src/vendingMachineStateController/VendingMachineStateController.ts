@@ -13,6 +13,7 @@ type VendingMachineContext = {
 
 const DEFAULT_ERROR_TIMEOUT = second(3);
 const DEFAULT_DONE_TIMEOUT = second(2);
+const DEFAULT_PAYMENT_WAIT_TIMEOUT = second(3);
 
 const INITIAL_CONTEXT: VendingMachineContext = {
   inputNumber: null,
@@ -60,6 +61,7 @@ export const vendingMachineStateController = setup({
   delays: {
     errorTimeout: ({ context }) => context.errorTimeout,
     doneTimeout: () => DEFAULT_DONE_TIMEOUT,
+    paymentWaitTimeout: () => DEFAULT_PAYMENT_WAIT_TIMEOUT,
   },
 }).createMachine({
   id: "vendingMachine",
@@ -84,6 +86,9 @@ export const vendingMachineStateController = setup({
             inputNumber: null,
             selectedProductInfo: null,
           })),
+        },
+        PAYMENT_WAIT_TIMEOUT: {
+          target: "timeout",
         },
         SET_PAYMENTS_INFO: {
           actions: assign(({ event }) => ({
@@ -139,6 +144,17 @@ export const vendingMachineStateController = setup({
     done: {
       after: {
         doneTimeout: {
+          actions: [
+            { type: "executePaymentInitializers" },
+            { type: "initContext" },
+          ],
+          target: "idle",
+        },
+      },
+    },
+    timeout: {
+      after: {
+        paymentWaitTimeout: {
           actions: [
             { type: "executePaymentInitializers" },
             { type: "initContext" },

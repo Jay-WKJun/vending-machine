@@ -8,11 +8,13 @@ export function Display() {
 
   const isError = vendingMachineState === "error";
   const isPaymentProgress = vendingMachineState === "paying";
+  const isDone = vendingMachineState === "done";
 
   const message = useMemo(() => {
     if (isError && errorMessage) return errorMessage;
-
     if (isPaymentProgress) return "결제 중...";
+    if (isDone) return "결제 완료!";
+
     if (inputNumber != null) {
       const productInfo = selectedProductInfo
         ? `${selectedProductInfo?.name}\n${selectedProductInfo?.price}원`
@@ -22,6 +24,7 @@ export function Display() {
     }
     return "어서오세요!";
   }, [
+    isDone,
     isError,
     inputNumber,
     errorMessage,

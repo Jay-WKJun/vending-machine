@@ -1,6 +1,7 @@
 import { ProductNumberInput } from "./components/ProductNumberInput";
 import { Display } from "./components/Display";
 import { PaymentModule } from "./components/PaymentModule";
+import { ProductDispenser } from "./components/ProductDispenser";
 
 export function VendingMachine() {
   return (
@@ -15,9 +16,7 @@ export function VendingMachine() {
 
       <PaymentModule />
 
-      <div className="flex flex-col justify-center items-center border-2 border-gray-300 rounded-md p-2 min-w-80 min-h-15 text-lg font-bold">
-        상품 나오는 곳
-      </div>
+      <ProductDispenser />
     </div>
   );
 }

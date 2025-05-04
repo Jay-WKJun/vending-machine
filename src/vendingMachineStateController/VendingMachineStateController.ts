@@ -28,7 +28,6 @@ type VendingMachineEvent =
   | { type: "DISPENSE_COMPLETE" }
   | { type: "DISPENSE_FAIL"; reason: string };
 
-// XState 머신 생성
 export const vendingMachineStateController = setup({
   types: {
     context: {} as VendingMachineContext,

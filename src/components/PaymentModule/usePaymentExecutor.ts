@@ -16,20 +16,20 @@ export function usePaymentExecutor(payments: Payments) {
 
   useEffect(() => {
     const isPayingState = vendingMachineState === "paying";
-    const [readyPayment, ...otherReadyMethods] = payments.filter(
+    const [readyPayment, ...otherReadyPayments] = payments.filter(
       ({ isPaymentReady }) => isPaymentReady
     );
+    const otherPayments = payments
+      .filter(({ isPaymentReady }) => !isPaymentReady)
+      .concat(otherReadyPayments);
 
     if (!isPayingState || !selectedProductInfo || !readyPayment) return;
 
     async function startPayment() {
       // 나머지 결제 방법들 작동 잠금
-      payments
-        .filter(({ isPaymentReady }) => !isPaymentReady)
-        .concat(otherReadyMethods)
-        .forEach(({ paymentModuleRef }) => {
-          paymentModuleRef.current?.lock();
-        });
+      otherPayments.forEach(({ paymentModuleRef }) => {
+        paymentModuleRef.current?.lock();
+      });
 
       const payment = readyPayment.paymentModuleRef.current;
       const res = await payment!.startPayment(selectedProductInfo!.price);

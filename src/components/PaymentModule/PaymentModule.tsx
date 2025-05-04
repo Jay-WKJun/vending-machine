@@ -47,10 +47,8 @@ export function PaymentModule({ className }: PaymentModuleProps) {
   const { snapshot, send } = useVendingMachineStateControllerContext();
 
   useEffect(() => {
-    const readyPaymentMethod = payments.find(
-      ({ isPaymentReady }) => isPaymentReady
-    );
-    const isPaymentReady = Boolean(readyPaymentMethod);
+    const readyPayment = payments.find(({ isPaymentReady }) => isPaymentReady);
+    const isPaymentReady = Boolean(readyPayment);
 
     send({
       type: "SET_PAYMENTS_INFO",

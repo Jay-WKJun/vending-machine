@@ -25,6 +25,10 @@ $pnpm dev
 # 브라우저로 http://localhost:5173에 접근
 ```
 
+# 자판기 도식 문서
+
+[자판기 도식 문서](https://github.com/Jay-WKJun/vending-machine/blob/main/docs/%EC%9E%90%ED%8C%90%EA%B8%B0_%EB%8F%84%EC%8B%9D_%EB%AC%B8%EC%84%9C.pdf)
+
 # ⚙️ 기능 소개
 
 - 번호를 통한 제품 탐색 및 지정

@@ -15,7 +15,7 @@ export function usePaymentExecutor(payments: Payments) {
   const selectedProductInfo = snapshot.context.selectedProductInfo;
 
   useEffect(() => {
-    const isPayingState = vendingMachineState.match("paying");
+    const isPayingState = vendingMachineState === "paying";
     const [readyPayment, ...otherReadyMethods] = payments.filter(
       ({ isPaymentReady }) => isPaymentReady
     );

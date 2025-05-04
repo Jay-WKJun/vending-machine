@@ -5,6 +5,7 @@ import {
   forwardRef,
   useImperativeHandle,
 } from "react";
+import { getRandomSuccessResult } from "../../utils/mockUtils";
 
 interface CashModuleProps {
   className?: string;
@@ -24,8 +25,11 @@ export const CashModule = forwardRef<CashModuleRef, CashModuleProps>(
 
     useImperativeHandle(ref, () => ({
       startPayment: async (productPrice: number) => {
-        setTotalCashAmount((prev) => prev - productPrice);
-        return true;
+        const isSuccess = await getRandomSuccessResult(95);
+        if (isSuccess) {
+          setTotalCashAmount((prev) => prev - productPrice);
+        }
+        return isSuccess;
       },
       init: () => {
         setTotalCashAmount(EMPTY_CASH);

@@ -39,6 +39,13 @@ export const CardModule = forwardRef<CardModuleRef, CardModuleProps>(
     }, [onCardReady, cardState]);
 
     const handleCardInput = useCallback(async () => {
+      if (
+        cardState !== "idle" &&
+        cardState !== "error" &&
+        cardState !== "paymentFailed"
+      )
+        return;
+
       setCardState("validateCard");
       setErrorMessage("");
 
@@ -50,7 +57,7 @@ export const CardModule = forwardRef<CardModuleRef, CardModuleProps>(
         setErrorMessage("카드 입력 실패, 다시 입력해주세요.");
       }
       return isSuccess;
-    }, []);
+    }, [cardState]);
 
     useImperativeHandle(ref, () => ({
       startPayment: async () => {
@@ -61,12 +68,20 @@ export const CardModule = forwardRef<CardModuleRef, CardModuleProps>(
         }
 
         setCardState("inPaymentProcess");
-        const isSuccess = await getRandomSuccessResult(90);
+        const isSuccess = await getRandomSuccessResult(90, 3000);
         if (isSuccess) {
           setCardState("paymentSuccess");
+          setTimeout(() => {
+            setCardState("idle");
+            setErrorMessage("");
+          }, 2000);
         } else {
           setCardState("paymentFailed");
           setErrorMessage("결제에 실패했습니다. 다시 시도해주세요.");
+          setTimeout(() => {
+            setCardState("ready");
+            setErrorMessage("");
+          }, 2000);
         }
         return isSuccess;
       },
@@ -81,6 +96,9 @@ export const CardModule = forwardRef<CardModuleRef, CardModuleProps>(
       if (cardState === "idle") return "카드를 입력해주세요.";
       if (cardState === "validateCard") return "카드 확인중...";
       if (cardState === "ready") return "카드 입력 완료";
+      if (cardState === "inPaymentProcess") return "결제 중...";
+      if (cardState === "paymentFailed") return "결제 실패, 다시 시도해주세요";
+      if (cardState === "paymentSuccess") return "결제 성공";
     }, [cardState, errorMessage]);
 
     return (

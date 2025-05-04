@@ -7,10 +7,12 @@ export function Display() {
   const { inputNumber, selectedProductInfo, errorMessage } = snapshot.context;
 
   const isError = vendingMachineState === "error";
+  const isPaymentProgress = vendingMachineState === "paying";
 
   const message = useMemo(() => {
     if (isError && errorMessage) return errorMessage;
 
+    if (isPaymentProgress) return "결제 중...";
     if (inputNumber != null) {
       const productInfo = selectedProductInfo
         ? `${selectedProductInfo?.name}\n${selectedProductInfo?.price}원`
@@ -19,7 +21,13 @@ export function Display() {
       return `입력 번호: ${inputNumber}\n${productInfo}`;
     }
     return "어서오세요!";
-  }, [inputNumber, selectedProductInfo, errorMessage, isError]);
+  }, [
+    isError,
+    inputNumber,
+    errorMessage,
+    isPaymentProgress,
+    selectedProductInfo,
+  ]);
 
   return (
     <div

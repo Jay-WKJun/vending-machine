@@ -30,7 +30,7 @@ export function ProductNumberInput() {
         초기화
       </button>
       {renderNumberButton(0)}
-      <button onClick={() => send({ type: "CONFIRM_SELECTION" })}>선택</button>
+      <button onClick={() => send({ type: "PAYMENT_START" })}>선택</button>
     </div>
   );
 }

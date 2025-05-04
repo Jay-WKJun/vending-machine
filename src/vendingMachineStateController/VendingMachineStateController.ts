@@ -6,6 +6,7 @@ type VendingMachineContext = {
   selectedProductInfo: Product | null;
   errorMessage: string | null;
   errorTimeout: number;
+  isPaymentReady: boolean;
 };
 
 const DEFAULT_ERROR_TIMEOUT = 5000;
@@ -15,14 +16,15 @@ const INITIAL_CONTEXT: VendingMachineContext = {
   selectedProductInfo: null,
   errorMessage: null,
   errorTimeout: DEFAULT_ERROR_TIMEOUT,
+  isPaymentReady: false,
 };
 
 type VendingMachineEvent =
   | { type: "INPUT_NUMBER"; digit: number }
   | { type: "INIT_INPUT_NUMBER" }
-  | { type: "CONFIRM_SELECTION" }
   | { type: "PAYMENT_WAIT_TIMEOUT" }
-  | { type: "TO_PROCESS_PAYMENT" }
+  | { type: "SET_PAYMENT_READY_STATE"; isPaymentReady: boolean }
+  | { type: "PAYMENT_START" }
   | { type: "PAYMENT_SUCCESS" }
   | { type: "PAYMENT_FAIL"; reason: string }
   | { type: "DISPENSE_COMPLETE" }
@@ -65,25 +67,62 @@ export const vendingMachineStateController = setup({
           ],
         },
         INIT_INPUT_NUMBER: {
-          actions: [
-            assign(({ context }) => {
-              return {
-                ...context,
-                inputNumber: null,
-                selectedProductInfo: null,
-              };
-            }),
-          ],
+          actions: assign(() => ({
+            inputNumber: null,
+            selectedProductInfo: null,
+          })),
+        },
+        SET_PAYMENT_READY_STATE: {
+          actions: assign(({ event }) => ({
+            isPaymentReady: event.isPaymentReady,
+          })),
+        },
+        PAYMENT_START: {
+          target: "paying",
+          guard: ({ context }) =>
+            Boolean(context.isPaymentReady && context.selectedProductInfo),
         },
       },
     },
     // paying (결제중...) -> 결제 중에 다른 입력을 막기 위한 용도
-    paying: {},
+    paying: {
+      on: {
+        PAYMENT_SUCCESS: {
+          target: "dispensing",
+        },
+        PAYMENT_FAIL: {
+          target: "error",
+          actions: assign(({ event }) => ({
+            errorMessage: event.reason,
+          })),
+        },
+      },
+    },
     // dispensing (상품 출력 중...) -> 동일하게 다른 입력을 막기 위한 용도
-    dispensing: {},
+    dispensing: {
+      on: {
+        DISPENSE_COMPLETE: {
+          target: "done",
+        },
+        DISPENSE_FAIL: {
+          target: "error",
+          actions: assign(({ event }) => ({
+            errorMessage: event.reason,
+          })),
+        },
+      },
+    },
     error: {
       after: {
         errorTimeout: {
+          actions: [{ type: "initContext" }],
+          target: "idle",
+        },
+      },
+    },
+    done: {
+      after: {
+        doneTimeout: {
           actions: [{ type: "initContext" }],
           target: "idle",
         },
